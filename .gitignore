@@ -1,0 +1,4 @@
+models/similarity.pkl
+.DS_Store
+__pycache__/
+*.pyc
