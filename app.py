@@ -16,7 +16,7 @@ st.write("")  # empty line for spacing
 
 # ---------- LOAD DATA ----------
 movies = pickle.load(open('models/movie_list.pkl','rb'))
-similarity = pickle.load(open('models/similarity.pkl','rb'))
+similarity = pickle.load(open('similarity.pkl','rb'))
 
 # ---------- FUNCTION TO FETCH POSTER ----------
 def fetch_poster(movie_id):
