@@ -11,7 +11,7 @@ st.write("")
 
 # Load data
 movies = pickle.load(open('models/movie_list.pkl','rb'))
-similarity = pickle.load(open('models/similarity.pkl','rb'))
+similarity = pickle.load(open('similarity.pkl','rb'))
 
 def fetch_poster(movie_id):
     url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=7b8b7f8b9e3e9d3b0ab494f8f184edee&language=en-US"
