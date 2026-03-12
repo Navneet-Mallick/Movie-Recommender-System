@@ -2,3 +2,7 @@ models/similarity.pkl
 .DS_Store
 __pycache__/
 *.pyc
+.streamlit/secrets.toml
+*.egg-info/
+dist/
+build/
