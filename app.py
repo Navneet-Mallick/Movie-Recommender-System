@@ -61,10 +61,11 @@ if st.button("Recommend Movies"):
         st.image(selected_poster)
         st.write(f"**{selected_movie}**")
     
-    st.markdown("#### Recommended Movies:")
-    cols = st.columns(5)
+    st.markdown("---")
+    st.markdown("#### 🎥 Recommended Movies:")
+    cols = st.columns(5, gap="small")
 
     for i in range(5):
         with cols[i]:
-            st.image(posters[i])
-            st.write(names[i])
+            st.image(posters[i], use_column_width=True)
+            st.markdown(f"<p style='text-align: center; font-weight: bold;'>{names[i]}</p>", unsafe_allow_html=True)
