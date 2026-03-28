@@ -48,24 +48,43 @@ if st.button("Recommend Movies"):
     with st.spinner("Finding similar movies... 🎥"):
         names, posters = recommend(selected_movie)
 
-    st.markdown(f"### 🎬 Getting recommendations for: **{selected_movie}**")
-    
-    # Display selected movie poster
+    # Get selected movie poster
     selected_index = movies[movies['title'] == selected_movie].index[0]
     selected_movie_id = movies.iloc[selected_index].movie_id
     selected_poster = fetch_poster(selected_movie_id)
     
-    st.markdown("#### Selected Movie:")
-    col_selected = st.columns([1, 4])
-    with col_selected[0]:
-        st.image(selected_poster)
-        st.write(f"**{selected_movie}**")
+    # Professional header
+    st.markdown(f"""
+    <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                padding: 20px; border-radius: 10px; margin-bottom: 20px;'>
+        <h2 style='color: white; margin: 0;'>✨ Recommended Movies Based On</h2>
+        <h3 style='color: #FFD700; margin: 10px 0 0 0;'>{selected_movie}</h3>
+    </div>
+    """, unsafe_allow_html=True)
     
-    st.markdown("---")
-    st.markdown("#### 🎥 Recommended Movies:")
-    cols = st.columns(5, gap="small")
-
+    # Display recommendations first
+    st.markdown("##### Top 5 Recommendations:")
+    cols = st.columns(5, gap="medium")
+    
     for i in range(5):
         with cols[i]:
             st.image(posters[i], use_column_width=True)
-            st.markdown(f"<p style='text-align: center; font-weight: bold;'>{names[i]}</p>", unsafe_allow_html=True)
+            st.markdown(f"""
+            <div style='text-align: center; padding: 10px; background-color: #f0f2f6; 
+                        border-radius: 8px; margin-top: 10px;'>
+                <p style='font-weight: bold; font-size: 14px; margin: 0;'>{names[i]}</p>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    # Display selected movie at the bottom
+    st.markdown("---")
+    st.markdown("##### 🎬 Your Selection:")
+    col_sel = st.columns([1, 2, 1])
+    with col_sel[1]:
+        st.image(selected_poster, use_column_width=True)
+        st.markdown(f"""
+        <div style='text-align: center; padding: 15px; background-color: #e8f4f8; 
+                    border-radius: 8px; margin-top: 10px; border-left: 4px solid #667eea;'>
+            <p style='font-weight: bold; font-size: 16px; margin: 0;'>{selected_movie}</p>
+        </div>
+        """, unsafe_allow_html=True)
