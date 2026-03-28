@@ -72,7 +72,7 @@ if st.button("Recommend Movies"):
             st.markdown(f"""
             <div style='text-align: center; padding: 10px; background-color: #f0f2f6; 
                         border-radius: 8px; margin-top: 10px;'>
-                <p style='font-weight: bold; font-size: 14px; margin: 0;'>{names[i]}</p>
+                <p style='font-weight: bold; font-size: 13px; margin: 0; color: #000;'>{names[i]}</p>
             </div>
             """, unsafe_allow_html=True)
     
