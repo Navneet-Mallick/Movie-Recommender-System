@@ -6,7 +6,6 @@ import time  # just to simulate progress (optional)
 st.set_page_config(page_title="Movie Recommender", page_icon="🎬", layout="wide")
 
 st.title("🎬 Movie Recommender System")
-st.subheader("👨‍💻 Developed by Navneet Mallick")
 st.write("")
 
 # Load data
