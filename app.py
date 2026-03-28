@@ -48,7 +48,19 @@ if st.button("Recommend Movies"):
     with st.spinner("Finding similar movies... 🎥"):
         names, posters = recommend(selected_movie)
 
-    st.subheader("Recommended Movies")
+    st.markdown(f"### 🎬 Getting recommendations for: **{selected_movie}**")
+    
+    # Display selected movie poster
+    selected_index = movies[movies['title'] == selected_movie].index[0]
+    selected_movie_id = movies.iloc[selected_index].movie_id
+    selected_poster = fetch_poster(selected_movie_id)
+    
+    col1, col2 = st.columns([1, 4])
+    with col1:
+        st.image(selected_poster)
+        st.write(f"**{selected_movie}**")
+    
+    col2.subheader("Recommended Movies")
     cols = st.columns(5)
 
     for i in range(5):
