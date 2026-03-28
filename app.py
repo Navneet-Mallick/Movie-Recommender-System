@@ -55,12 +55,13 @@ if st.button("Recommend Movies"):
     selected_movie_id = movies.iloc[selected_index].movie_id
     selected_poster = fetch_poster(selected_movie_id)
     
-    col1, col2 = st.columns([1, 4])
-    with col1:
+    st.markdown("#### Selected Movie:")
+    col_selected = st.columns([1, 4])
+    with col_selected[0]:
         st.image(selected_poster)
         st.write(f"**{selected_movie}**")
     
-    col2.subheader("Recommended Movies")
+    st.markdown("#### Recommended Movies:")
     cols = st.columns(5)
 
     for i in range(5):
