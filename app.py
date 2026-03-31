@@ -1,7 +1,6 @@
 import pickle
 import streamlit as st
 import requests
-import time
 
 st.set_page_config(page_title="Movie Recommender", page_icon="🎬", layout="wide")
 
@@ -28,7 +27,7 @@ html, body, [class*="css"] {
 }
 
 #MainMenu, footer, header { visibility: hidden; }
-.block-container { padding-top: 2rem !important; max-width: 1300px; }
+.block-container { padding-top: 2rem !important; max-width: 1400px; }
 
 h1 {
     font-family: 'Bebas Neue', sans-serif !important;
@@ -69,25 +68,79 @@ label { color: var(--muted) !important; font-size: 0.8rem !important; letter-spa
     box-shadow: 0 16px 40px rgba(245, 197, 24, 0.2);
 }
 
-div[style*="background-color: #f0f2f6"] {
-    background: var(--card) !important;
-    border: 1px solid var(--border) !important;
-    border-top: 2px solid var(--gold) !important;
-    border-radius: 0 0 10px 10px !important;
+/* Movie card label */
+.movie-label {
+    text-align: center;
+    padding: 8px 6px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-top: 2px solid var(--gold);
+    border-radius: 0 0 10px 10px;
+    margin-top: 6px;
 }
-div[style*="background-color: #f0f2f6"] p {
+.movie-label p {
+    font-weight: 600;
+    font-size: 0.82rem;
+    margin: 0;
     color: var(--text) !important;
-    font-size: 0.82rem !important;
+    line-height: 1.3;
 }
 
-div[style*="background-color: #e8f4f8"] {
-    background: #111 !important;
-    border: 1px solid var(--border) !important;
-    border-left: 4px solid var(--gold) !important;
-    border-radius: 8px !important;
+/* Selected movie card — gold accent */
+.movie-label-selected {
+    text-align: center;
+    padding: 8px 6px;
+    background: rgba(245, 197, 24, 0.08);
+    border: 1px solid var(--gold);
+    border-top: 2px solid var(--gold);
+    border-radius: 0 0 10px 10px;
+    margin-top: 6px;
 }
-div[style*="background-color: #e8f4f8"] p {
-    color: var(--text) !important;
+.movie-label-selected p {
+    font-weight: 700;
+    font-size: 0.82rem;
+    margin: 0;
+    color: var(--gold) !important;
+    line-height: 1.3;
+}
+
+/* Column divider between selected and recs */
+.divider-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding-top: 80px;
+}
+.arrow-label {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    color: var(--muted);
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Section label above columns */
+.col-section-label {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 6px;
+}
+.col-section-label-selected {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 6px;
 }
 
 /* Expander styling */
@@ -107,7 +160,6 @@ div[style*="background-color: #e8f4f8"] p {
     padding: 10px !important;
 }
 
-/* Detail badges inside expander */
 .detail-badge {
     display: inline-block;
     background: #222;
@@ -164,6 +216,7 @@ similarity = pickle.load(open('similarity.pkl', 'rb'))
 
 API_KEY = "7b8b7f8b9e3e9d3b0ab494f8f184edee"
 
+
 def fetch_movie_details(movie_id):
     try:
         url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={API_KEY}&language=en-US"
@@ -173,6 +226,7 @@ def fetch_movie_details(movie_id):
             "poster": "https://via.placeholder.com/500x750?text=No+Image",
             "title": "Unknown", "overview": "Unavailable.", "rating": "N/A",
             "vote_count": 0, "release_date": "N/A", "genres": "N/A", "runtime": "N/A",
+            "year": "N/A",
         }
 
     poster_path = data.get('poster_path')
@@ -197,18 +251,43 @@ def fetch_movie_details(movie_id):
         "runtime": runtime_str,
     }
 
+
 def recommend(movie):
     index = movies[movies['title'] == movie].index[0]
     distances = sorted(list(enumerate(similarity[index])), key=lambda x: x[1], reverse=True)
-    recommended_movies = []
+    recommended = []
     progress_bar = st.progress(0)
     for i, val in enumerate(distances[1:6]):
         movie_id = movies.iloc[val[0]].movie_id
-        recommended_movies.append(fetch_movie_details(movie_id))
+        recommended.append(fetch_movie_details(movie_id))
         progress_bar.progress((i + 1) / 5)
     progress_bar.empty()
-    return recommended_movies
+    return recommended
 
+
+def render_details(details):
+    """Render the expander details block for a movie."""
+    with st.expander("ℹ️ Details"):
+        if isinstance(details['rating'], (int, float)):
+            st.markdown(
+                f"<div class='rating-badge'>★ {details['rating']}/10 &nbsp;·&nbsp; {details['vote_count']:,} votes</div>",
+                unsafe_allow_html=True,
+            )
+        if details['genres'] != 'N/A':
+            badges = "".join(
+                f"<span class='detail-badge'>{g.strip()}</span>"
+                for g in details['genres'].split(',')
+            )
+            st.markdown(f"<div>{badges}</div>", unsafe_allow_html=True)
+        st.markdown(
+            f"<div style='margin:6px 0;'><span class='detail-badge'>📅 {details['year']}</span>"
+            f"<span class='detail-badge'>⏱ {details['runtime']}</span></div>",
+            unsafe_allow_html=True,
+        )
+        st.markdown(f"<div class='overview-text'>{details['overview']}</div>", unsafe_allow_html=True)
+
+
+# ── UI ─────────────────────────────────────────────────────────────────────────
 movie_list = movies['title'].values
 selected_movie = st.selectbox("🔎 Search or select a movie", movie_list)
 
@@ -216,106 +295,46 @@ if st.button("Recommend Movies"):
     with st.spinner("Finding similar movies... 🎥"):
         recommended_movies = recommend(selected_movie)
 
-    # Get selected movie details
-    selected_index = movies[movies['title'] == selected_movie].index[0]
-    selected_movie_id = movies.iloc[selected_index].movie_id
-    selected_details = fetch_movie_details(selected_movie_id)
+    # Fetch selected movie details
+    sel_index = movies[movies['title'] == selected_movie].index[0]
+    sel_id = movies.iloc[sel_index].movie_id
+    selected_details = fetch_movie_details(sel_id)
 
-    # ── Header banner ──────────────────────────────────────────────────────────
-    st.markdown(f"""
-    <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                padding: 20px; border-radius: 10px; margin-bottom: 20px;'>
-        <h2 style='color: white; margin: 0;'>✨ Recommended Movies Based On</h2>
-        <h3 style='color: #FFD700; margin: 10px 0 0 0;'>{selected_movie}</h3>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
 
-    # ── Top 5 Recommendations ──────────────────────────────────────────────────
-    st.markdown("##### Top 5 Recommendations:")
-    cols = st.columns(5, gap="medium")
+    # ── Single aligned row: selected movie | arrow | 5 recommendations ─────────
+    # Column widths: selected(2) | arrow(0.4) | 5 recs(1 each)
+    col_sel, col_arrow, *rec_cols = st.columns([2, 0.4, 1, 1, 1, 1, 1], gap="small")
 
+    # Selected movie column
+    with col_sel:
+        st.markdown("<div class='col-section-label-selected'>YOUR PICK</div>", unsafe_allow_html=True)
+        st.image(selected_details['poster'], use_container_width=True)
+        st.markdown(
+            f"<div class='movie-label-selected'><p>{selected_details['title']}</p></div>",
+            unsafe_allow_html=True,
+        )
+        render_details(selected_details)
+
+    # Arrow / divider column
+    with col_arrow:
+        st.markdown(
+            "<div class='divider-col'><div class='arrow-label'>"
+            "<span style='font-size:1.4rem;color:#555'>→</span>"
+            "<span>Because you liked this</span>"
+            "</div></div>",
+            unsafe_allow_html=True,
+        )
+
+    # 5 recommendation columns
     for i, rec in enumerate(recommended_movies):
-        with cols[i]:
-            # Poster
-            st.image(rec['poster'], use_container_width=True)   # ✅ Fixed
-
-            # Movie title card
-            st.markdown(f"""
-            <div style='text-align: center; padding: 10px; background-color: #f0f2f6;
-                        border-radius: 8px; margin-top: 10px;'>
-                <p style='font-weight: bold; font-size: 13px; margin: 0; color: #000;'>{rec['title']}</p>
-            </div>
-            """, unsafe_allow_html=True)
-
-            # Expander with details
-            with st.expander("ℹ️ Details"):
-                # Rating
-                if isinstance(rec['rating'], (int, float)):
-                    st.markdown(f"""
-                    <div class='rating-badge'>★ {rec['rating']}/10
-                    &nbsp;·&nbsp; {rec['vote_count']:,} votes</div>
-                    """, unsafe_allow_html=True)
-
-                # Genres as badges
-                if rec['genres'] != 'N/A':
-                    badges = "".join(
-                        f"<span class='detail-badge'>{g.strip()}</span>"
-                        for g in rec['genres'].split(',')
-                    )
-                    st.markdown(f"<div>{badges}</div>", unsafe_allow_html=True)
-
-                # Year & Runtime
-                st.markdown(f"""
-                <div style='margin: 6px 0;'>
-                    <span class='detail-badge'>📅 {rec['year']}</span>
-                    <span class='detail-badge'>⏱ {rec['runtime']}</span>
-                </div>
-                """, unsafe_allow_html=True)
-
-                # Overview
-                st.markdown(f"""
-                <div class='overview-text'>{rec['overview']}</div>
-                """, unsafe_allow_html=True)
-
-    # ── Selected movie at bottom ───────────────────────────────────────────────
-    st.markdown("---")
-    st.markdown("##### 🎬 Your Selection:")
-    col_sel = st.columns([1, 2, 1])
-    with col_sel[1]:
-        st.image(selected_details['poster'], use_container_width=True)   # ✅ Fixed
-        st.markdown(f"""
-        <div style='text-align: center; padding: 15px; background-color: #e8f4f8;
-                    border-radius: 8px; margin-top: 10px; border-left: 4px solid #667eea;'>
-            <p style='font-weight: bold; font-size: 16px; margin: 0; color: #000;'>{selected_movie}</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # Expander for selected movie too
-        with st.expander("ℹ️ Details"):
-            if isinstance(selected_details['rating'], (int, float)):
-                st.markdown(f"""
-                <div class='rating-badge'>★ {selected_details['rating']}/10
-                &nbsp;·&nbsp; {selected_details['vote_count']:,} votes</div>
-                """, unsafe_allow_html=True)
-
-            if selected_details['genres'] != 'N/A':
-                badges = "".join(
-                    f"<span class='detail-badge'>{g.strip()}</span>"
-                    for g in selected_details['genres'].split(',')
-                )
-                st.markdown(f"<div>{badges}</div>", unsafe_allow_html=True)
-
-            st.markdown(f"""
-            <div style='margin: 6px 0;'>
-                <span class='detail-badge'>📅 {selected_details['year']}</span>
-                <span class='detail-badge'>⏱ {selected_details['runtime']}</span>
-            </div>
-            """, unsafe_allow_html=True)
-
-            st.markdown(f"""
-            <div class='overview-text'>{selected_details['overview']}</div>
-            """, unsafe_allow_html=True)
-
-
+        with rec_cols[i]:
+            st.markdown(f"<div class='col-section-label'>#{i+1}</div>", unsafe_allow_html=True)
+            st.image(rec['poster'], use_container_width=True)
+            st.markdown(
+                f"<div class='movie-label'><p>{rec['title']}</p></div>",
+                unsafe_allow_html=True,
+            )
+            render_details(rec)
 
 st.caption("Developed with ❤️ By Navneet")
