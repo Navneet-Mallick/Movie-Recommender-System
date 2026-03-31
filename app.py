@@ -86,45 +86,6 @@ label { color: var(--muted) !important; font-size: 0.8rem !important; letter-spa
     line-height: 1.3;
 }
 
-/* Selected movie card — gold accent */
-.movie-label-selected {
-    text-align: center;
-    padding: 8px 6px;
-    background: rgba(245, 197, 24, 0.08);
-    border: 1px solid var(--gold);
-    border-top: 2px solid var(--gold);
-    border-radius: 0 0 10px 10px;
-    margin-top: 6px;
-}
-.movie-label-selected p {
-    font-weight: 700;
-    font-size: 0.82rem;
-    margin: 0;
-    color: var(--gold) !important;
-    line-height: 1.3;
-}
-
-/* Column divider between selected and recs */
-.divider-col {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    padding-top: 80px;
-}
-.arrow-label {
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    color: var(--muted);
-    font-size: 0.65rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-}
-
 /* Section label above columns */
 .col-section-label {
     font-size: 0.65rem;
@@ -300,33 +261,57 @@ if st.button("Recommend Movies"):
     sel_id = movies.iloc[sel_index].movie_id
     selected_details = fetch_movie_details(sel_id)
 
-    st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
 
-    # ── Single aligned row: selected movie | arrow | 5 recommendations ─────────
-    # Column widths: selected(2.2) | arrow(0.3) | 5 recs(1.2 each)
-    col_sel, col_arrow, *rec_cols = st.columns([2.2, 0.3, 1.2, 1.2, 1.2, 1.2, 1.2], gap="medium")
-
-    # Selected movie column
-    with col_sel:
-        st.markdown("<div class='col-section-label-selected'>YOUR PICK</div>", unsafe_allow_html=True)
+    # ── Selected Movie (Top Section) ────────────────────────────────────────────
+    st.markdown(
+        "<h3 style='color: var(--gold); letter-spacing: 2px; margin-bottom: 20px;'>✨ YOUR SELECTION</h3>",
+        unsafe_allow_html=True,
+    )
+    
+    col_sel_img, col_sel_info = st.columns([1.5, 2], gap="large")
+    
+    with col_sel_img:
         st.image(selected_details['poster'], use_container_width=True)
+    
+    with col_sel_info:
         st.markdown(
-            f"<div class='movie-label-selected'><p>{selected_details['title']}</p></div>",
+            f"<h2 style='color: var(--text); margin: 0 0 12px 0;'>{selected_details['title']}</h2>",
             unsafe_allow_html=True,
         )
-        render_details(selected_details)
-
-    # Arrow / divider column
-    with col_arrow:
+        if isinstance(selected_details['rating'], (int, float)):
+            st.markdown(
+                f"<div class='rating-badge'>★ {selected_details['rating']}/10 &nbsp;·&nbsp; {selected_details['vote_count']:,} votes</div>",
+                unsafe_allow_html=True,
+            )
+        if selected_details['genres'] != 'N/A':
+            badges = "".join(
+                f"<span class='detail-badge'>{g.strip()}</span>"
+                for g in selected_details['genres'].split(',')
+            )
+            st.markdown(f"<div style='margin-bottom: 12px;'>{badges}</div>", unsafe_allow_html=True)
         st.markdown(
-            "<div class='divider-col'><div class='arrow-label'>"
-            "<span style='font-size:1.4rem;color:#555'>→</span>"
-            "<span>Because you liked this</span>"
-            "</div></div>",
+            f"<div style='margin-bottom: 12px;'><span class='detail-badge'>📅 {selected_details['year']}</span>"
+            f"<span class='detail-badge'>⏱ {selected_details['runtime']}</span></div>",
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            f"<div class='overview-text' style='border-top: 1px solid #333; padding-top: 12px; margin-top: 12px;'>{selected_details['overview']}</div>",
             unsafe_allow_html=True,
         )
 
-    # 5 recommendation columns
+    st.markdown("<div style='height:40px'></div>", unsafe_allow_html=True)
+    st.markdown("---")
+    st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
+
+    # ── Recommendations Grid (5 columns) ────────────────────────────────────────
+    st.markdown(
+        "<h3 style='color: var(--gold); letter-spacing: 2px; margin-bottom: 20px;'>🎯 RECOMMENDED FOR YOU</h3>",
+        unsafe_allow_html=True,
+    )
+    
+    rec_cols = st.columns(5, gap="large")
+    
     for i, rec in enumerate(recommended_movies):
         with rec_cols[i]:
             st.markdown(f"<div class='col-section-label'>#{i+1}</div>", unsafe_allow_html=True)
