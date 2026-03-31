@@ -316,4 +316,6 @@ if st.button("Recommend Movies"):
             <div class='overview-text'>{selected_details['overview']}</div>
             """, unsafe_allow_html=True)
 
-            st.write("Developed with ❤️ By Navneet")
+
+
+st.footer("Developed with ❤️ By Navneet")
