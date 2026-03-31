@@ -318,4 +318,4 @@ if st.button("Recommend Movies"):
 
 
 
-st.footer("Developed with ❤️ By Navneet")
+st.caption("Developed with ❤️ By Navneet")
