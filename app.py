@@ -101,6 +101,19 @@ label {
     box-shadow: 0 0 20px rgba(255, 107, 53, 0.1) !important;
 }
 
+/* Fix selectbox text visibility */
+.stSelectbox > div > div > div {
+    color: var(--text-primary) !important;
+}
+
+.stSelectbox input {
+    color: var(--text-primary) !important;
+}
+
+.stSelectbox [data-baseweb="select"] > div {
+    color: var(--text-primary) !important;
+}
+
 .stButton > button {
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%) !important;
     color: white !important;
