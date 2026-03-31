@@ -303,8 +303,8 @@ if st.button("Recommend Movies"):
     st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
 
     # ── Single aligned row: selected movie | arrow | 5 recommendations ─────────
-    # Column widths: selected(2) | arrow(0.4) | 5 recs(1 each)
-    col_sel, col_arrow, *rec_cols = st.columns([2, 0.4, 1, 1, 1, 1, 1], gap="small")
+    # Column widths: selected(2.2) | arrow(0.3) | 5 recs(1.2 each)
+    col_sel, col_arrow, *rec_cols = st.columns([2.2, 0.3, 1.2, 1.2, 1.2, 1.2, 1.2], gap="medium")
 
     # Selected movie column
     with col_sel:
